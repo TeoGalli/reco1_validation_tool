@@ -1,0 +1,43 @@
+#include "GenRecoValidator.fcl"
+#include "services_dune.fcl"
+
+process_name: GenRecoValidator
+
+
+services: 
+{
+  TFileService: { fileName: "analysisOutput.root" }
+  # Load the service that manages root files for histograms.
+  TimeTracker:       {}
+  RandomNumberGenerator: {}
+  MemoryTracker:         { } # default is one
+  message:      @local::dune_message_services_prod
+  FileCatalogMetadata:
+    @local::art_file_catalog_mc
+    @table::dunefd_1x2x6_simulation_services 
+    #Geometry:                  @local::dune10kt_1x2x6_v5_refactored_geo
+    Geometry:                  @local::dune10kt_1x2x6_v4_geo
+}
+
+source:
+{
+  module_type: RootInput # Telling art we want a root input
+  maxEvents: -1
+}
+
+physics:
+{
+  analyzers:
+  {
+    analysistree:      @local::validatorAna
+  }
+
+  ana: [ analysistree ]
+  # path0: [ ana ]
+  end_paths: [ ana ]
+}
+
+physics.analyzers.analysistree.SaveIonAndScintInfo:     true
+physics.analyzers.analysistree.SaveGenieGenInfo:        true
+physics.analyzers.analysistree.SaveHitsInfo:            true
+physics.analyzers.analysistree.SavePhotonsInfo:         true
